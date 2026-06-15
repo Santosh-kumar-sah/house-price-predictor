@@ -90,14 +90,53 @@ st.markdown("""
 # ─────────────────────────────────────────────
 @st.cache_resource
 def load_model():
-    """Load the serialized pipeline from the model/ directory."""
+    """
+    Load the serialized pipeline. If the file is missing or a version mismatch
+    causes unpickling to fail, retrain the model on the fly for 100% compatibility.
+    """
     model_path = os.path.join(os.path.dirname(__file__), "model", "model.pkl")
-    if not os.path.exists(model_path):
-        st.error(
-            "❌ Trained model not found! Run `python train.py` first to generate `model/model.pkl`."
-        )
+    
+    # Try loading the existing model first
+    if os.path.exists(model_path):
+        try:
+            return joblib.load(model_path)
+        except Exception as e:
+            # Silent fallback to retraining if loading fails
+            pass
+            
+    # Retrain on the fly as fallback
+    try:
+        from sklearn.datasets import fetch_california_housing
+        from sklearn.ensemble import HistGradientBoostingRegressor
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.pipeline import Pipeline
+        
+        # Load dataset
+        housing = fetch_california_housing(as_frame=True)
+        X_raw = housing.data
+        y = housing.target
+        
+        # Apply the same feature engineering defined in app.py
+        X = engineer_features(X_raw)
+        
+        # Build and train the pipeline
+        pipeline = Pipeline([
+            ("scaler", StandardScaler()),
+            ("regressor", HistGradientBoostingRegressor(random_state=42)),
+        ])
+        pipeline.fit(X, y)
+        
+        # Save it back locally for subsequent loads if writable
+        try:
+            os.makedirs(os.path.dirname(model_path), exist_ok=True)
+            joblib.dump(pipeline, model_path)
+        except Exception:
+            pass
+            
+        return pipeline
+    except Exception as retrain_error:
+        st.error(f"❌ Failed to load or retrain the model: {str(retrain_error)}")
         st.stop()
-    return joblib.load(model_path)
 
 
 # Coordinates for California's two main economic centers

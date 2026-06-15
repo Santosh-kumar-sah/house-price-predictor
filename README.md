@@ -7,6 +7,7 @@ A complete end-to-end machine learning project that predicts California house pr
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-red?logo=streamlit&logoColor=white)
 
 ---
+Deployed Link - (https://house-price-predictor-ac7trjwrootyihgwy6spk2.streamlit.app/)
 
 ## 📋 Project Description
 

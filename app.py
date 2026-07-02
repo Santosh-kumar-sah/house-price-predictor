@@ -429,7 +429,7 @@ with viz_tab2:
 st.divider()
 st.markdown(
     "<p style='text-align:center; color:rgba(255,255,255,0.35); font-size:0.85rem;'>"
-    "Built with ❤️ using Streamlit & Scikit-learn · California Housing Dataset"
+    "Built with ❤️ using Streamlit & Scikit-learn · California Housing Dataset - Santosh"
     "</p>",
     unsafe_allow_html=True,
 )
